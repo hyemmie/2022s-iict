@@ -1,7 +1,7 @@
 class Game1 extends Game {
   constructor(img_game, img_game_finished, img_back, img_game_info, img_game_success) {
     super(img_game, img_game_finished, img_back, img_game_info, img_game_success);
-    this.score = 4;
+    this.score = 0;
     this.button = new GameButton(this.img_button, this.img_finished_button, this.finished, 45, 230);
     this.glasses_x;
     this.glasses_y;
@@ -52,7 +52,7 @@ class Game1 extends Game {
       this.button.setFinished(this.finished);
       this.success_modal.show(mouseX, mouseY);
     } else if (this.ready) {
-        if (second() % 10 == 0 && this.debounce) {
+        if (second() % 5 == 0 && this.debounce) {
           this.debounce = false;
           let success = true;
           for (let i = 0; i < this.eyes.length; i++) {
@@ -67,13 +67,13 @@ class Game1 extends Game {
           }
           this.glasses_x = random(62, 62 + CAM_IMAGE_WIDTH - 100);
           this.glasses_y = random(200, 200 + CAM_IMAGE_HEIGHT - 140);
-        } else if (second() % 10 != 0) {
+        } else if (second() % 5 != 0) {
           this.debounce = true;
         }
   
         textSize(30);
         fill(0, 114, 230);
-        text(10 - second() % 10, 825, 175);
+        text(5 - second() % 5, 825, 175);
         text(this.score, 910, 325);
     
         if (this.glasses_x && this.glasses_y) {
@@ -83,7 +83,7 @@ class Game1 extends Game {
           rect(355, 343, 143, 30, 10);
           fill(0, 114, 230);
           textSize(20);
-          text(10 - second() % 10 + "초 기다리기!", 300, 350);
+          text(5 - second() % 5 + "초 기다리기!", 300, 350);
         }
         this.getEyesCoord();
       }
