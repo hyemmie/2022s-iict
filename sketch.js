@@ -28,6 +28,10 @@ let img_mic_on;
 let img_mic_off;
 let img_cam_on;
 let img_cam_off;
+let detections;
+let img_foods = [];
+let mouthX;
+let mouthY;
 
 /* images for game 3 */
 let img_game3;
@@ -46,6 +50,11 @@ let CAM_IMAGE_WIDTH = 621;
 let poseNet;
 let poses = [];
 
+const detection_options = {
+  withLandmarks: true,
+  withDescriptors: false,
+}
+
 function setup() {
   createCanvas(width, height);
   img_game1.resize(289, 152);
@@ -55,19 +64,23 @@ function setup() {
   img_game3.resize(289, 152);
   img_game3_finished.resize(289, 152);
   img_glasses.resize(100, 40);
-  cam = createCapture(VIDEO);
-  poseNet = ml5.poseNet(cam, modelReady);
-  poseNet.on('pose', function(results) {
-    poses = results;
-  });
-  cam.hide();
-  pixelDensity(1);
+
   let game1 = new Game1(img_game1, img_game1_finished, img_game1_back, img_game1_info, img_game1_success);
   let game2 = new Game2(img_game2, img_game2_finished, img_game2_back, img_game2_info, img_game2_success);
   let game3 = new Game3(img_game3, img_game3_finished, img_game1_back, img_game1_info, img_game1_success);
   game_list.push(game1);
   game_list.push(game2);
   game_list.push(game3);
+
+  cam = createCapture(VIDEO);
+  poseNet = ml5.poseNet(cam, modelReady);
+  poseNet.on('pose', function(results) {
+    poses = results;
+  });
+  faceapi = ml5.faceApi(cam, detection_options);
+
+  cam.hide();
+  pixelDensity(1);
 }
 
 function modelReady() {
@@ -104,6 +117,13 @@ function preload() {
   img_mic_off = loadImage("./image/mic_off.png");
   img_cam_on = loadImage("./image/cam_on.png");
   img_cam_off = loadImage("./image/cam_off.png");
+
+  food0 = loadImage("./image/food0.png");
+  food1 = loadImage("./image/food1.png");
+  food2 = loadImage("./image/food2.png");
+  img_foods.push(food0);
+  img_foods.push(food1);
+  img_foods.push(food2);
 
   img_game3 = loadImage("./image/game3.png");
   img_game3_finished = loadImage("./image/game3_finished.png");

@@ -3,8 +3,9 @@ class Game2 extends Game {
     super(img_game, img_game_finished, img_back, img_game_info, img_game_success);
     this.button = new GameButton(this.img_button, this.img_finished_button, this.finished, 363, 230);
     this.status = 1;
-    this.is_back = false;
+    this.is_back = true;
     this.score = 0;
+    this.foods = [];
   }
 
   mousePressed(mouseX, mouseY) {
@@ -21,6 +22,22 @@ class Game2 extends Game {
       this.updateMic();
     } else if (80 < mouseX && mouseX < 120 && 535 < mouseY && mouseY < 575) {
       this.updateCam();
+    } else if (this.score >= 100 && this.success_modal.isButtonOver(mouseX, mouseY)) {
+      clickSound.play();
+      this.score = 0;
+      stage = 1;
+      this.ready = false;
+    }
+  }
+
+  randomBack() {
+    if (frameCount % 10 == 0) {
+      if (!this.is_back) {
+        this.is_back = true;
+      }
+    }
+    if (frameCount % 50 == 0) {
+      this.is_back = !this.is_back;
     }
   }
 
@@ -41,6 +58,12 @@ class Game2 extends Game {
           rect(62 + x, 100 + y, ps, ps);
         }
       }
+
+      fill(255);
+      rect(620, 460, 100, 40, 10);
+      fill(0);
+      textSize(25);
+      text(this.score + " 점", 600, 470);
     }
       
     if (this.is_back) {
@@ -50,6 +73,43 @@ class Game2 extends Game {
 
     this.info_modal.setVisible(!this.ready);
     this.info_modal.show(mouseX, mouseY);
+
+    if (this.score >= 100) {
+      this.finished = true;
+      this.button.setFinished(this.finished);
+      this.success_modal.show(mouseX, mouseY);
+    } else if (this.ready) {
+      if (this.status === 1 || this.status === 3) {
+        this.randomBack();
+
+        if (!this.is_back) {
+          if (this.score > 0) {
+            this.score -= 10;
+          }
+        }
+
+        for (let food of this.foods) {
+          food.setGravity();
+          food.display();
+          food.move();
+          if (food.checkAndErase(mouthX, mouthY)) {
+            successSound.play();
+            this.score += 10;
+          }
+        }
+        if (frameCount % 10 == 0) {
+          this.moreFood();
+        }
+
+        faceapi.detect(this.gotResults);
+      }
+    }
+
+  }
+
+  moreFood() {
+    let f = new Food(random(62, 620), 200, random(15), random(3));
+    this.foods.push(f);
   }
 
   drawBackground() {
@@ -119,5 +179,70 @@ class Game2 extends Game {
     }
   }
 
+  gotResults(err, result) {
+    if (err) {
+      console.log(err);
+      return;
+    }
+    detections = result;
 
+    if (detections) {
+      if (detections.length > 0) {
+          // console.log(detections)
+          for (let i = 0; i < detections.length; i++){
+            let mouth = detections[i].parts.mouth; 
+            if (mouth[10]._x !== undefined && mouth[10]._y !== undefined) {
+              fill(255, 0, 0);
+              console.log(62 + cam.width - mouth[10]._x, 100 + mouth[10]._y);
+              ellipse(62 + cam.width - mouth[10]._x, 100 + mouth[10]._y, 20, 20);    
+              mouthX = 62 + cam.width - mouth[10]._x;
+              mouthY = 100 + mouth[10]._y;
+            }
+          }
+      }
+    }
+  }
+}
+
+class Food {
+  constructor(x, y, speed, type){
+    this.x = x;
+    this.y = y;
+    this.speed = speed;
+    this.type = type;
+    this.gravity = 0.5;
+    this.visible = true;
+  }
+  
+  setGravity(){
+    this.speed += this.gravity;
+  }
+  
+  move() {
+    this.y += this.speed;
+    if (this.y >= 430) {
+      this.visible = false;
+    }
+  }
+  
+  display(){
+    if (this.visible) {
+      image(img_foods[int(this.type)], this.x, this.y);
+    }
+    // ellipse(this.x, this.y, this.diam, this.diam);
+  }
+
+  checkAndErase(x, y) {
+    if (this.visible) {
+      let isOnFoodX = this.x < x && x < this.x + 64;
+      let isOnFoodY = this.y < y && y < this.y + 64;
+      if (isOnFoodX && isOnFoodY) {
+        this.visible = false;
+      }
+      return isOnFoodX && isOnFoodY;
+    } else {
+      return false;
+    }
+    
+  }
 }
