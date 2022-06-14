@@ -100,14 +100,11 @@ class Game1 extends Game {
         let keypoint = pose.keypoints[j];
         // Only draw an ellipse is the pose probability is bigger than 0.2
         if (keypoint.score > 0.2) {
-          fill(255, 0, 0);
-          noStroke();
           if (keypoint.part === "leftEye" || keypoint.part === "rightEye") {
             this.eyes.push([
               62 + cam.width - keypoint.position.x, 
               100 + keypoint.position.y
             ])
-            // ellipse(62 + cam.width - keypoint.position.x, 100 + keypoint.position.y, 10, 10);
           }
         }
       }
