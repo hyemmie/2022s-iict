@@ -27,6 +27,7 @@ class GameModal{
 
       // 파란 버튼
       fill(45, 139, 254);
+      noStroke();
       rect(450, 430, 100, 40, 10);
 
       fill(255);
