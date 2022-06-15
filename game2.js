@@ -3,18 +3,19 @@ class Game2 extends Game {
     super(img_game, img_game_finished, img_back, img_game_info, img_game_success);
     this.button = new GameButton(this.img_button, this.img_finished_button, this.finished, 363, 230);
     this.status = 1;
-    this.is_back = true;
+    this.is_prof_back = true;
+    this.show_help_message = false;
     this.score = 0;
     this.foods = [];
   }
 
   mousePressed(mouseX, mouseY) {
     if (this.score < 100 && this.info_modal.isButtonOver(mouseX, mouseY)) {
-      clickSound.play();
+      click_sound.play();
       this.ready = true;
       this.info_modal.setVisible(!this.ready);
     } else if (900 < mouseX && mouseX < 1000 && 500 < mouseY && mouseY < 600) {
-      clickSound.play();
+      click_sound.play();
       this.score = 0;
       stage = 1;
       this.ready = false;
@@ -23,21 +24,28 @@ class Game2 extends Game {
     } else if (80 < mouseX && mouseX < 120 && 535 < mouseY && mouseY < 575) {
       this.updateCam();
     } else if (this.score >= 100 && this.success_modal.isButtonOver(mouseX, mouseY)) {
-      clickSound.play();
+      click_sound.play();
       this.score = 0;
       stage = 1;
       this.ready = false;
     }
   }
 
-  randomBack() {
-    if (frameCount % 10 == 0) {
-      if (!this.is_back) {
-        this.is_back = true;
-      }
-    }
-    if (frameCount % 50 == 0) {
-      this.is_back = !this.is_back;
+  randomBack(case_num) {
+    switch (case_num) {
+      case 0 : 
+        this.is_prof_back = true;
+        setTimeout(() => this.randomBack(1),20000);
+        break;
+      case 1 :
+        this.show_help_message = true;
+        setTimeout(() => this.randomBack(2),3000);
+        break;
+      case 2 :
+        this.show_help_message = false;
+        this.is_prof_back = false;
+        setTimeout(() => this.randomBack(0),5000);
+        break;
     }
   }
 
@@ -64,11 +72,18 @@ class Game2 extends Game {
       fill(0);
       textSize(25);
       text(this.score + " 점", 600, 470);
+    } else {
+      image(img_hci, 62, 200);
     }
       
-    if (this.is_back) {
+    if (this.is_prof_back) {
       image(img_prof_back, 60, 71);
     }
+
+    if (this.show_help_message) {
+      image(img_game2_help, 550, 145);
+    }
+
     this.drawMicAndCamByStatus();
 
     this.info_modal.setVisible(!this.ready);
@@ -79,21 +94,20 @@ class Game2 extends Game {
       this.button.setFinished(this.finished);
       this.success_modal.show(mouseX, mouseY);
     } else if (this.ready) {
-      if (this.status === 1 || this.status === 3) {
-        this.randomBack();
+      this.randomBack();
 
-        if (!this.is_back) {
+      if (this.status === 1 || this.status === 3) {
+        if (!this.is_prof_back) {
           if (this.score > 0) {
             this.score -= 10;
           }
         }
-
         for (let food of this.foods) {
           food.setGravity();
           food.display();
           food.move();
-          if (food.checkAndErase(mouthX, mouthY)) {
-            successSound.play();
+          if (food.checkAndErase(mouthX, mouthY) && this.is_prof_back) {
+            success_sound.play();
             this.score += 10;
           }
         }
@@ -188,12 +202,10 @@ class Game2 extends Game {
 
     if (detections) {
       if (detections.length > 0) {
-          // console.log(detections)
           for (let i = 0; i < detections.length; i++){
             let mouth = detections[i].parts.mouth; 
             if (mouth[10]._x !== undefined && mouth[10]._y !== undefined) {
               fill(255, 0, 0);
-              console.log(62 + cam.width - mouth[10]._x, 100 + mouth[10]._y);
               ellipse(62 + cam.width - mouth[10]._x, 100 + mouth[10]._y, 20, 20);    
               mouthX = 62 + cam.width - mouth[10]._x;
               mouthY = 100 + mouth[10]._y;
