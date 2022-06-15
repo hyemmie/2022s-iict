@@ -11,16 +11,16 @@ class Game1 extends Game {
 
   mousePressed(mouseX, mouseY) {
     if (this.score < 5 && this.info_modal.isButtonOver(mouseX, mouseY)) {
-      clickSound.play();
+      click_sound.play();
       this.ready = true;
       this.info_modal.setVisible(!this.ready);
     } else if (900 < mouseX && mouseX < 1000 && 500 < mouseY && mouseY < 600) {
-      clickSound.play();
+      click_sound.play();
       this.score = 0;
       stage = 1;
       this.ready = false;
     } else if (this.score >= 5 && this.success_modal.isButtonOver(mouseX, mouseY)) {
-      clickSound.play();
+      click_sound.play();
       this.score = 0;
       stage = 1;
       this.ready = false;
@@ -62,7 +62,7 @@ class Game1 extends Game {
             }
           }
           if (success) {
-            successSound.play();
+            success_sound.play();
             this.score += 1;
           }
           this.glasses_x = random(62, 62 + CAM_IMAGE_WIDTH - 100);
