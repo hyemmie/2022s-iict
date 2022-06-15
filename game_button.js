@@ -45,5 +45,9 @@ class GameButton{
   setFinished(isFinished) {
     this.isFinished = isFinished;
   }
+
+  getFinished() {
+    return this.isFinished;
+  }
   
 }
