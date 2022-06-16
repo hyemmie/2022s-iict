@@ -49,7 +49,6 @@ class Game3 extends Game {
     } else if (this.found_ta && 950 < mouseX && mouseX < 1000 && 460 < mouseY && mouseY < 510) {
       this.sent = true;
       this.found_ta = false;
-      console.log("sent!");
       setTimeout(() => { 
         textArea.hide();
         this.cleared = true;
